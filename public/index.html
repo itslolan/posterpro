@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poster Pro - AI Poster Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Poster Pro</h1>
+            <p class="subtitle">Create stunning posters with AI-powered image generation</p>
+        </header>
+
+        <main>
+            <form id="posterForm" class="poster-form">
+                <div class="form-group">
+                    <label for="prompt">Text Prompt <span class="required">*</span></label>
+                    <textarea 
+                        id="prompt" 
+                        name="prompt" 
+                        placeholder="Describe the poster you want to create... e.g., 'a photo of an indian woman's head and ears wearing the ear ring in image 1'"
+                        required
+                        rows="4"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="imageInput">Optional Image Input</label>
+                    <div class="file-upload-wrapper">
+                        <input 
+                            type="file" 
+                            id="imageInput" 
+                            name="image" 
+                            accept="image/*"
+                            class="file-input"
+                        >
+                        <label for="imageInput" class="file-label">
+                            <span class="file-icon">📷</span>
+                            <span class="file-text">Choose an image (optional)</span>
+                        </label>
+                        <div id="imagePreview" class="image-preview"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="size">Size</label>
+                        <select id="size" name="size">
+                            <option value="2K" selected>2K</option>
+                            <option value="1K">1K</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aspectRatio">Aspect Ratio</label>
+                        <select id="aspectRatio" name="aspect_ratio">
+                            <option value="4:3" selected>4:3</option>
+                            <option value="16:9">16:9</option>
+                            <option value="1:1">1:1</option>
+                            <option value="3:4">3:4</option>
+                            <option value="9:16">9:16</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text">Generate Posters</span>
+                    <span class="btn-loader" id="loader" style="display: none;">⏳</span>
+                </button>
+            </form>
+
+            <div id="results" class="results" style="display: none;">
+                <h2>Generated Posters</h2>
+                <div id="imageGrid" class="image-grid"></div>
+            </div>
+
+            <div id="error" class="error" style="display: none;"></div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
