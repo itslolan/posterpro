@@ -5,8 +5,10 @@ const results = document.getElementById('results');
 const imageGrid = document.getElementById('imageGrid');
 const errorDiv = document.getElementById('error');
 const submitBtn = document.getElementById('submitBtn');
-const loader = document.getElementById('loader');
 const btnText = submitBtn.querySelector('.btn-text');
+const appContainer = document.getElementById('appContainer');
+const loadingContainer = document.getElementById('loadingContainer');
+const resultsColumn = document.getElementById('resultsColumn');
 
 // Handle image preview
 imageInput.addEventListener('change', (e) => {
@@ -28,14 +30,17 @@ imageInput.addEventListener('change', (e) => {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Activate 2-column layout
+    appContainer.classList.add('layout-active');
+    
     // Hide previous results and errors
     results.style.display = 'none';
     errorDiv.style.display = 'none';
+    loadingContainer.style.display = 'flex';
     
     // Show loading state
     submitBtn.disabled = true;
     btnText.textContent = 'Generating...';
-    loader.style.display = 'inline-block';
     
     try {
         const formData = new FormData(form);
@@ -43,13 +48,6 @@ form.addEventListener('submit', async (e) => {
         const size = formData.get('size');
         const aspectRatio = formData.get('aspect_ratio');
         const imageFile = formData.get('image');
-        
-        // Prepare request body
-        const requestBody = {
-            prompt: prompt,
-            size: size,
-            aspect_ratio: aspectRatio
-        };
         
         // Create FormData for file upload
         const uploadFormData = new FormData();
@@ -84,20 +82,24 @@ form.addEventListener('submit', async (e) => {
         console.error('Error:', error);
         errorDiv.textContent = `Error: ${error.message}`;
         errorDiv.style.display = 'block';
+        loadingContainer.style.display = 'none';
     } finally {
         // Reset button state
         submitBtn.disabled = false;
-        btnText.textContent = 'Generate Posters';
-        loader.style.display = 'none';
+        btnText.textContent = 'Generate';
     }
 });
 
 function displayResults(imageUrls) {
+    // Hide loading, show results
+    loadingContainer.style.display = 'none';
     imageGrid.innerHTML = '';
     
     imageUrls.forEach((url, index) => {
         const card = document.createElement('div');
         card.className = 'image-card';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
         
         const img = document.createElement('img');
         img.src = url;
@@ -112,16 +114,22 @@ function displayResults(imageUrls) {
         const info = document.createElement('div');
         info.className = 'image-info';
         info.innerHTML = `
-            <div>Poster ${index + 1}</div>
+            <div style="margin-bottom: 8px; font-weight: 500;">Poster ${index + 1}</div>
             <a href="${url}" download="poster-${index + 1}.png" class="download-btn">Download</a>
         `;
         
         card.appendChild(img);
         card.appendChild(info);
         imageGrid.appendChild(card);
+        
+        // Animate in
+        setTimeout(() => {
+            card.style.transition = 'all 0.4s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
     });
     
     results.style.display = 'block';
-    results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
