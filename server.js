@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 
 dotenv.config();
 
@@ -75,14 +76,54 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
       sequential_image_generation: 'disabled'
     };
 
-    // If an image was uploaded, add it to the input
+    // If an image was uploaded, convert it to base64 and create a data URL
     if (req.file) {
-      // Construct a publicly accessible URL for the uploaded image
-      // Note: On Render.com, uploaded files are ephemeral and will be lost on restart
-      // For production, consider using a cloud storage service (Cloudinary, S3, etc.)
-      const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-      const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
-      input.image_input = [imageUrl];
+      try {
+        console.log('Converting image to base64...');
+        
+        // Read the image file
+        const fileData = fsSync.readFileSync(req.file.path);
+        
+        // Convert to base64
+        const base64Image = fileData.toString('base64');
+        
+        // Determine MIME type from file extension
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        const mimeTypes = {
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.png': 'image/png',
+          '.gif': 'image/gif',
+          '.webp': 'image/webp',
+          '.avif': 'image/avif'
+        };
+        const mimeType = mimeTypes[ext] || 'image/jpeg';
+        
+        // Create data URL with proper prefix
+        const dataUrl = `data:${mimeType};base64,${base64Image}`;
+        
+        console.log('Image converted to base64, size:', Math.round(base64Image.length / 1024), 'KB');
+        input.image_input = [dataUrl];
+        
+        // Clean up local file after conversion
+        try {
+          await fs.unlink(req.file.path);
+        } catch (cleanupError) {
+          console.error('Error cleaning up local file:', cleanupError);
+        }
+      } catch (conversionError) {
+        console.error('Error converting image to base64:', conversionError);
+        // Clean up uploaded file on error
+        try {
+          await fs.unlink(req.file.path);
+        } catch (cleanupError) {
+          console.error('Error cleaning up file:', cleanupError);
+        }
+        return res.status(500).json({
+          error: 'Failed to convert image to base64',
+          message: conversionError.message
+        });
+      }
     }
 
     console.log('Generating images with input:', { ...input, image_input: input.image_input ? '[image provided]' : undefined });
@@ -102,14 +143,7 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
       }
     }
 
-    // Clean up uploaded file after processing
-    if (req.file) {
-      try {
-        await fs.unlink(req.file.path);
-      } catch (error) {
-        console.error('Error deleting uploaded file:', error);
-      }
-    }
+    // Note: Local file cleanup is handled after uploading to Replicate
 
     res.json({
       success: true,
