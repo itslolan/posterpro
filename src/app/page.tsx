@@ -167,6 +167,7 @@ export default function Home() {
                         imagePreview ? "border-primary/50 bg-primary/5" : "border-gray-200 hover:bg-gray-50"
                       )}
                     >
+                      {/* Move input outside of the styled div to ensure it's clickable, or ensure proper pointer-events */}
                       <input 
                         ref={fileInputRef}
                         type="file" 
@@ -189,13 +190,13 @@ export default function Home() {
                               e.stopPropagation();
                               clearImage();
                             }}
-                            className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-full shadow-sm transition-colors border border-gray-200"
+                            className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-full shadow-sm transition-colors border border-gray-200 z-10"
                           >
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center justify-center text-gray-400 group-hover:text-primary/80 transition-colors">
+                        <div className="flex flex-col items-center justify-center text-gray-400 group-hover:text-primary/80 transition-colors pointer-events-none">
                           <Upload className="w-8 h-8 mb-3" />
                           <p className="text-sm text-center text-gray-600">Click to upload</p>
                           <p className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP</p>
