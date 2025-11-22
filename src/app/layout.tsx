@@ -8,7 +8,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "PosterPro - AI Ad Generator",
+  title: "Adphex - AI Ad Generator",
   description: "Generate stunning ads from your product images",
 };
 
